@@ -56,16 +56,9 @@ static int cmd_q(char *args) {
 }
 
 static int cmd_si(char *args) {
-	int n=1;
-	if(args != NULL && *args != '\0') {
-		char *endptr;
-		n = strtol(args,&endptr,10);
-		if(*endptr != '\0') {
-			printf("Invalid number:%s\n",args);
-			return -1;
-		}
-	}
+	int n = (args != NULL) ? atoi(args) : 1;
 	cpu_exec(n);
+	printf("Step execute N=%d\n",n);
 	return 0;
 }
 
