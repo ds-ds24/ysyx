@@ -18,6 +18,9 @@
 #include <readline/readline.h>
 #include <readline/history.h>
 #include "sdb.h"
+#include <stdlib.h>
+#include <string.h>
+#include <stdio.h>
 
 static int is_batch_mode = false;
 
@@ -52,7 +55,22 @@ static int cmd_q(char *args) {
   return -1;
 }
 
+static int cmd_si(char *args) {
+	int n=1;
+	if(args != NULL && *args != '\0') {
+		char *endptr;
+		n = strtol(args,&endptr,10);
+		if(*endptr != '\0') {
+			printf("Invalid number:%s\n",args);
+			return -1;
+		}
+	}
+	cpu_exec(n);
+	return 0;
+}
+
 static int cmd_help(char *args);
+
 
 static struct {
   const char *name;
@@ -64,6 +82,7 @@ static struct {
   { "q", "Exit NEMU", cmd_q },
 
   /* TODO: Add more commands */
+  {"si","Let the program excute N instuctions in a single step and the suspend execution",cmd_si},
 
 };
 
