@@ -75,7 +75,7 @@ static int cmd_info(char *args) {
 }
 
 static int cmd_x(char *args){
-  int len;
+  int len=1;
   paddr_t addr=0;
   sscanf(args,"x %d %x",&len,&addr);
   static int i;
