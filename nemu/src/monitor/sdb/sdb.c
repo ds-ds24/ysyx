@@ -21,6 +21,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
+#include <memory/paddr.h>
 
 static int is_batch_mode = false;
 
@@ -73,6 +74,18 @@ static int cmd_info(char *args) {
 	return 0;
 }
 
+static int cmd_x(char *args){
+  int len;
+  paddr_t addr;
+  sscanf(args,"x %d %x",&len,&addr);
+  static int i;
+  for(i=0;i<len;i++){
+    printf("%08x: %08x\n",addr,paddr_read(addr,4));
+    addr += 4;
+  }
+  return 0;
+}
+
 
 static int cmd_help(char *args);
 
@@ -88,7 +101,8 @@ static struct {
 
   /* TODO: Add more commands */
   {"si","Let the program excute N instuctions in a single step and the suspend execution",cmd_si},
-	{"info","Print registers",cmd_info}
+	{"info","Print registers",cmd_info},
+  {"x","Scan memory",cmd_x}
 
 };
 
