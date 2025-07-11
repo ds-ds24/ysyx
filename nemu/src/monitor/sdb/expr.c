@@ -22,6 +22,7 @@
  */
 #include <regex.h>
 #include <stdbool.h>
+#include <stdio.h>
 #include <string.h>
 
 enum {
@@ -167,14 +168,20 @@ int eval(int p,int q) {
       return 0;
     }
     else if(p==q){
-      return tokens[p].str[0];
+      return atoi(tokens[p].str);
     }
     else if(check_parentheses(p,q)==true){
       return eval(p+1,q-1);
     }
     else{
-      int op = 0,op1=0,op2=0;
+      int op = -1,op1=-1,op2=-1;
+      int checkop=0;
       for(int i=p;i<q;i++){
+        if(tokens[i].type == '(') checkop++;
+        else if(tokens[i].type == ')') checkop--;
+        if(checkop != 0){
+          continue;
+        }
         if(tokens[i].type == '+'||tokens[i].type == '-'){
           op1=i;
           continue;
@@ -183,17 +190,23 @@ int eval(int p,int q) {
           op2 = i;
           continue;
         }
-        if(op1>0) op=op1;
-        else op=op2;
       }
-      char val1=eval(p,op-1);
-      char val2=eval(op+1,q);
+      if(op1>=0) op = op1;
+      else op=op2;
+
+      int val1=eval(p,op-1);
+      int val2=eval(op+1,q);
 
       switch(tokens[op].type){
         case '+':return val1 + val2;
         case '-':return val1 - val2;
-        case '*':return val1 - val2;
-        case '/':return val1 - val2;
+        case '*':return val1 * val2;
+        case '/':
+          if(val2==0) {
+            printf("/0错误");
+            return 0;
+          }
+          return val1 / val2;
         default: assert(0);
       }
     }
@@ -213,7 +226,9 @@ word_t expr(char *e, bool *success) {
   }
   else {
     *success = true;
-    return eval(0,nr_token);
+    return eval(0,nr_token-1);
   }
 
 }
+
+
