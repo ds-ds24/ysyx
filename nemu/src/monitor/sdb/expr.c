@@ -13,15 +13,17 @@
 * See the Mulan PSL v2 for more details.
 ***************************************************************************************/
 
+#include "debug.h"
 #include <isa.h>
 
 /* We use the POSIX regex functions to process regular expressions.
  * Type 'man regex' for more information about POSIX regex functions.
  */
 #include <regex.h>
+#include <string.h>
 
 enum {
-  TK_NOTYPE = 256, TK_EQ,
+  TK_NOTYPE = 256, TK_EQ,TK_NUM,
 
   /* TODO: Add more token types */
 
@@ -39,6 +41,15 @@ static struct rule {
   {" +", TK_NOTYPE},    // spaces
   {"\\+", '+'},         // plus
   {"==", TK_EQ},        // equal
+  {"\\-",'-'},
+  {"\\*",'*'},
+  {"/",'/'},
+  {"\\(",'('},
+  {"\\)",')'},
+  {"[0-9]+",TK_NUM},
+
+
+
 };
 
 #define NR_REGEX ARRLEN(rules)
@@ -95,9 +106,21 @@ static bool make_token(char *e) {
          */
 
         switch (rules[i].token_type) {
-          default: TODO();
+          case '+':
+          case '-':
+          case '*':
+          case '/':
+          case '(':
+          case ')':
+            tokens[nr_token].type=rules[i].token_type;
+            tokens[nr_token].str[0]=rules[i].token_type;
+          case TK_NUM:
+            tokens[nr_token].type=rules[i].token_type;
+            strncpy(tokens[nr_token].str, substr_start, pmatch.rm_so);
+          default: 
+            break;
         }
-
+         
         break;
       }
     }
