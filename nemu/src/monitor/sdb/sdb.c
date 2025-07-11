@@ -18,10 +18,13 @@
 #include <readline/readline.h>
 #include <readline/history.h>
 #include "sdb.h"
+#include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
 #include <memory/paddr.h>
+#include <threads.h>
+#include <uchar.h>
 
 static int is_batch_mode = false;
 
@@ -73,6 +76,12 @@ static int cmd_info(char *args) {
 	}
 	return 0;
 }
+static int cmd_p(char *args){
+  init_regex();
+  bool *success = false;
+  expr( args,success);
+  return 0;
+}
 
 static int cmd_x(char *args){
   int len=1;
@@ -103,7 +112,8 @@ static struct {
   /* TODO: Add more commands */
   {"si","Let the program excute N instuctions in a single step and the suspend execution",cmd_si},
 	{"info","Print registers",cmd_info},
-  {"x","Scan memory",cmd_x}
+  {"x","Scan memory",cmd_x},
+  {"p","Expression evaluation",cmd_p}
 
 };
 

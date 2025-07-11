@@ -14,12 +14,14 @@
 ***************************************************************************************/
 
 #include "debug.h"
+#include "macro.h"
 #include <isa.h>
 
 /* We use the POSIX regex functions to process regular expressions.
  * Type 'man regex' for more information about POSIX regex functions.
  */
 #include <regex.h>
+#include <stdbool.h>
 #include <string.h>
 
 enum {
@@ -114,11 +116,19 @@ static bool make_token(char *e) {
           case ')':
             tokens[nr_token].type=rules[i].token_type;
             tokens[nr_token].str[0]=rules[i].token_type;
+            tokens[nr_token].str[1]='\0';
+            nr_token++;
+            break;
           case TK_NUM:
             tokens[nr_token].type=rules[i].token_type;
-            strncpy(tokens[nr_token].str, substr_start, pmatch.rm_so);
-          default: 
+            strncpy(tokens[nr_token].str, substr_start,substr_len);
+            tokens[nr_token].str[1]='\0';
+            nr_token++;
             break;
+            case TK_NOTYPE:
+              continue;
+          default: 
+            assert(0);
         }
          
         break;
@@ -133,6 +143,61 @@ static bool make_token(char *e) {
 
   return true;
 }
+static bool check_parentheses(int p,int q){
+  int a=0,b=0;
+  for(int i=p;i<q;i++){
+    if(tokens[i].type =='(') a++;
+    else if(tokens[i].type == ')') b++;
+    else continue;
+  }
+  if(tokens[p].type != '('||tokens[q].type != ')'){
+    return false;
+  }
+  else if(a == b){
+    return true;
+  }
+  else {
+    return false;
+  }
+}
+
+int eval(int p,int q) {
+    if(p>q){
+      printf("起始位置大于末位\n");
+      return 0;
+    }
+    else if(p==q){
+      return tokens[p].str[0];
+    }
+    else if(check_parentheses(p,q)==true){
+      return eval(p+1,q-1);
+    }
+    else{
+      int op = 0,op1=0,op2=0;
+      for(int i=p;i<q;i++){
+        if(tokens[i].type == '+'||tokens[i].type == '-'){
+          op1=i;
+          continue;
+        }
+        else if(tokens[i].type == '*'||tokens[i].type == '/'){
+          op2 = i;
+          continue;
+        }
+        if(op1>0) op=op1;
+        else op=op2;
+      }
+      char val1=eval(p,op-1);
+      char val2=eval(op+1,q);
+
+      switch(tokens[op].type){
+        case '+':return val1 + val2;
+        case '-':return val1 - val2;
+        case '*':return val1 - val2;
+        case '/':return val1 - val2;
+        default: assert(0);
+      }
+    }
+  }
 
 
 word_t expr(char *e, bool *success) {
@@ -142,7 +207,13 @@ word_t expr(char *e, bool *success) {
   }
 
   /* TODO: Insert codes to evaluate the expression. */
-  TODO();
+  else if(nr_token==0){
+    *success = false;
+    return 0;
+  }
+  else {
+    *success = true;
+    return eval(0,nr_token-1);
+  }
 
-  return 0;
 }
