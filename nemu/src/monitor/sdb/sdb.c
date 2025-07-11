@@ -79,8 +79,7 @@ static int cmd_info(char *args) {
 static int cmd_p(char *args){
   init_regex();
   bool success;
-  expr( args,&success);
-  return 0;
+  return expr( args,&success);
 }
 
 static int cmd_x(char *args){
