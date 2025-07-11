@@ -122,7 +122,7 @@ static bool make_token(char *e) {
           case TK_NUM:
             tokens[nr_token].type=rules[i].token_type;
             strncpy(tokens[nr_token].str, substr_start,substr_len);
-            tokens[nr_token].str[1]='\0';
+            tokens[nr_token].str[substr_len]='\0';
             nr_token++;
             break;
             case TK_NOTYPE:
@@ -144,19 +144,19 @@ static bool make_token(char *e) {
   return true;
 }
 static bool check_parentheses(int p,int q){
-  int a=0,b=0;
-  for(int i=p;i<q;i++){
-    if(tokens[i].type =='(') a++;
-    else if(tokens[i].type == ')') b++;
-    else continue;
-  }
   if(tokens[p].type != '('||tokens[q].type != ')'){
     return false;
   }
-  else if(a == b){
+  int balance = 0;
+  for(int i=p;i<=q;i++){
+    if(tokens[i].type =='(') balance++;
+    else if(tokens[i].type == ')') balance--;
+    if(balance<0) return false;
+  }
+  if(balance==0){
     return true;
   }
-  else {
+  else{
     return false;
   }
 }
@@ -213,7 +213,7 @@ word_t expr(char *e, bool *success) {
   }
   else {
     *success = true;
-    return eval(0,nr_token-1);
+    return eval(0,nr_token);
   }
 
 }
