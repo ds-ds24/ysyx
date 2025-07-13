@@ -25,14 +25,14 @@
 #include <stdio.h>
 #include <string.h>
 
-enum {                                                                  //特殊规则
+enum { 
   TK_NOTYPE = 256, TK_EQ,TK_NUM,
 
   /* TODO: Add more token types */
 
 };
 
-static struct rule {                                                   //规则结构
+static struct rule { 
   const char *regex;
   int token_type;
 } rules[] = {
@@ -55,14 +55,14 @@ static struct rule {                                                   //规则�
 
 };
 
-#define NR_REGEX ARRLEN(rules)                          //根据rules来确定NR_REGEX的大小
+#define NR_REGEX ARRLEN(rules)  
 
 static regex_t re[NR_REGEX] = {};
 
 /* Rules are used for many times.
  * Therefore we compile them only once before any usage.
  */
-void init_regex() {//初始化正则表达式，该函数确保所有预定义的正则表达式规则在调用之前进行正确的编译，若编译失败则立即终止并提供详细错误信息。  
+void init_regex() {
   int i;
   char error_msg[128];
   int ret;
@@ -76,13 +76,13 @@ void init_regex() {//初始化正则表达式，该函数确保所有预定义�
   }
 }
 
-typedef struct token {                              //元字符结构体
+typedef struct token {
   int type;
   char str[32];
 } Token;
 
-static Token tokens[32] __attribute__((used)) = {};     //定义32个Token结构体类型的数组
-static int nr_token __attribute__((used))  = 0;    //__attribute__((used))告诉编译器即使数组没有被显示使用，也不要优化掉它。这个在生成静态数据或库时特别有用
+static Token tokens[32] __attribute__((used)) = {};  
+static int nr_token __attribute__((used))  = 0;  
 
 static bool make_token(char *e) {
   int position = 0;
@@ -91,7 +91,7 @@ static bool make_token(char *e) {
 
   nr_token = 0;
 
-  while (e[position] != '\0') {                   //识别并将token储存到数组中
+  while (e[position] != '\0') { 
     /* Try all rules one by one. */
     for (i = 0; i < NR_REGEX; i ++) {
       if (regexec(&re[i], e + position, 1, &pmatch, 0) == 0 && pmatch.rm_so == 0) {
@@ -135,9 +135,17 @@ static bool make_token(char *e) {
         break;
       }
     }
+    /*for(int i=0;i<nr_token;i++){
+      if(nr_token==0&&tokens[nr_token].type=='-'){
+        if(tokens[nr_token+1].type == TK_NUM){
+          int fushu = atoi(tokens[nr_token+1].str) * (-1);
+          sprintf(tokens[nr_token+1].str, "%0x", fushu);
+        }
+      }
+    }*/
 
     if (i == NR_REGEX) {
-      printf("no match at position %d\n%s\n%*.s^\n", position, e, position, "");//用^精确标记错误的地方
+      printf("no match at position %d\n%s\n%*.s^\n", position, e, position, "");
       return false;
     }
   }
@@ -216,7 +224,7 @@ int eval(int p,int q) {
 word_t expr(char *e, bool *success) {
   if (!make_token(e)) {
     *success = false;
-    return 0;
+    return 0; 
   }
 
   /* TODO: Insert codes to evaluate the expression. */
