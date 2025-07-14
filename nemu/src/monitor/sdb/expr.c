@@ -141,6 +141,13 @@ static bool make_token(char *e) {
           default: 
             assert(0);
         }
+        for(int i=0;i<nr_token;i++){
+          if(tokens[i].type == '*'){
+          if(i == 0||tokens[i-1].type == '+'||tokens[i-1].type == '-'||tokens[i-1].type == '('||tokens[i].type==TK_EQ||tokens[i].type==TK_NOEQ){
+          tokens[i].type = DEREF;
+          }
+      }
+      }
          
         break;
       }
@@ -289,16 +296,6 @@ word_t expr(char *e, bool *success) {
   }
 
   /* TODO: Insert codes to evaluate the expression. */
-  int sp = 0;
-  for(int i=0;i<nr_token;i++){
-    if(tokens[i].type == '*'){
-        if(i == 0||tokens[i-1].type == '+'||tokens[i-1].type == '-'||tokens[i-1].type == '('||tokens[i].type==TK_EQ||tokens[i].type==TK_NOEQ){
-        sp = i;
-        tokens[i].type = DEREF;
-      }
-  }
-  return eval(sp,nr_token-1);
-  }
   if(!check_parentheses(0, nr_token-1)){
     *success = false;
     return 1;
