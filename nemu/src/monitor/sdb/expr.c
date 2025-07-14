@@ -13,8 +13,10 @@
 * See the Mulan PSL v2 for more details.
 ***************************************************************************************/
 
+#include "common.h"
 #include "debug.h"
 #include "macro.h"
+#include "memory/paddr.h"
 #include <isa.h>
 
 /* We use the POSIX regex functions to process regular expressions.
@@ -26,7 +28,7 @@
 #include <string.h>
 
 enum { 
-  TK_NOTYPE = 256, TK_EQ,TK_NUM,
+  TK_NOTYPE = 256, TK_EQ,TK_NUM,TK_NOEQ,TK_AND,TK_XNUM,DEREF,TK_RE
 
   /* TODO: Add more token types */
 
@@ -50,7 +52,10 @@ static struct rule {
   {"\\(",'('},
   {"\\)",')'},
   {"[0-9]+",TK_NUM},
-
+  {"!=",TK_NOEQ},
+  {"&&",TK_AND},
+  {"$[$a-z0-20]",TK_RE},
+  {"0x[0-9a-fA-F]+",TK_XNUM}
 
 
 };
@@ -109,6 +114,10 @@ static bool make_token(char *e) {
          */
 
         switch (rules[i].token_type) {
+          case TK_AND:
+          case TK_EQ:
+          case TK_NOEQ:
+          case '$':
           case '+':
           case '-':
           case '*':
@@ -121,6 +130,7 @@ static bool make_token(char *e) {
             nr_token++;
             break;
           case TK_NUM:
+          case TK_XNUM:
             tokens[nr_token].type=rules[i].token_type;
             strncpy(tokens[nr_token].str, substr_start,substr_len);
             tokens[nr_token].str[substr_len]='\0';
@@ -176,36 +186,87 @@ int eval(int p,int q) {
       return 0;
     }
     else if(p==q){
-      return atoi(tokens[p].str);
+      char *next_op;
+      if(tokens[p].type==TK_XNUM) return strtol(tokens[p].str,&next_op,16);
+      else if(tokens[p].type==TK_NUM) return strtol(tokens[p].str,&next_op,10);
+      else if(tokens[p].type==TK_RE) {
+        bool success;
+        word_t isa_num = isa_reg_str2val(tokens[p].str,&success);
+        return isa_num;
+      }
+      else {
+        printf("输入错误\n");
+        return 0;
+      }
     }
     else if(check_parentheses(p,q)==true){
       return eval(p+1,q-1);
     }
     else{
-      int op = -1,op1=-1,op2=-1;
+      int op=-1;
       int checkop=0;
-      for(int i=p;i<q;i++){
+      for(int i=q;i>=p;i--){
         if(tokens[i].type == '(') checkop++;
         else if(tokens[i].type == ')') checkop--;
-        if(checkop != 0){
-          continue;
-        }
-        if(tokens[i].type == '+'||tokens[i].type == '-'){
-          op1=i;
-          continue;
-        }
-        else if(tokens[i].type == '*'||tokens[i].type == '/'){
-          op2 = i;
-          continue;
+        if(checkop != 0) continue;
+        if(tokens[i].type == TK_AND){
+          op=i;
+          break;
         }
       }
-      if(op1>=0) op = op1;
-      else op=op2;
-
+      if(op==-1){
+        for(int i=q;i>=p;i--){
+          if(tokens[i].type == '(') checkop++;
+          else if(tokens[i].type == ')') checkop--;
+          if(checkop != 0) continue;
+          if(tokens[i].type == TK_EQ||tokens[i].type==TK_NOEQ) {
+            op=i;
+            break;
+          }
+        }
+      }
+      if(op==-1){
+        for(int i=q;i>=p;i--){
+          if(tokens[i].type == '(') checkop++;
+          else if(tokens[i].type == ')') checkop--;
+          if(checkop != 0) continue;
+          if(tokens[i].type == DEREF) {
+            op=i;
+            break;
+          }
+        }
+      }
+      if(op==-1){
+        for(int i=q;i>=p;i--){
+          if(tokens[i].type == '(') checkop++;
+          else if(tokens[i].type == ')') checkop--;
+          if(checkop != 0) continue;
+          if(tokens[i].type == '+'||tokens[i].type=='-') {
+            op=i;
+            break;
+          }
+        }
+      }
+      if(op==-1){
+        for(int i=q;i>=p;i--){
+          if(tokens[i].type == '(') checkop++;
+          else if(tokens[i].type == ')') checkop--;
+          if(checkop != 0) continue;
+          if(tokens[i].type == '*'||tokens[i].type=='/') {
+            op=i;
+            break;
+          }
+        }
+      }
+    
       int val1=eval(p,op-1);
       int val2=eval(op+1,q);
 
       switch(tokens[op].type){
+        case TK_AND:return val1 && val2;
+        case TK_EQ: return val1 == val2;
+        case TK_NOEQ: return val1 != val2;
+        case DEREF: return paddr_read(val2, 4);
         case '+':return val1 + val2;
         case '-':return val1 - val2;
         case '*':return val1 * val2;
@@ -228,7 +289,17 @@ word_t expr(char *e, bool *success) {
   }
 
   /* TODO: Insert codes to evaluate the expression. */
-  else if(!check_parentheses(0, nr_token-1)){
+  int sp = 0;
+  for(int i=0;i<nr_token;i++){
+    if(tokens[i].type == '*'){
+        if(i == 0||tokens[i-1].type == '+'||tokens[i-1].type == '-'||tokens[i-1].type == '('||tokens[i].type==TK_EQ||tokens[i].type==TK_NOEQ){
+        sp = i;
+        tokens[i].type = DEREF;
+      }
+  }
+  return eval(sp,nr_token-1);
+  }
+  if(!check_parentheses(0, nr_token-1)){
     *success = false;
     return 1;
   }

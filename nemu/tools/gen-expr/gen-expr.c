@@ -39,36 +39,52 @@ void reset_buffer(){
 void gen(char c){
   *p++ = c;
   *p = '\0';
-  chuling++;
 }
 void gen_str(char *s){
   strcpy(p, s);
-  p += sizeof(s);
-  chuling++;
+  p += strlen(s);
 }
 void gen_num(){
   int num = rand()%100;
    char str_num[10];
-   sprintf(str_num,"%x",num);
+   sprintf(str_num,"%d",num);
    gen_str(str_num);
-   chuling++;
 }
 void gen_rand_op(){
   char ops[] = "+-*/";
+  char op = ops[rand()%4];
   gen(' ');
-  gen(ops[rand()%4]);
+  gen(op);
   gen(' ');
-  chuling += 3;
 }
 int choose(int n){
   return rand()% n;
 } 
-static void gen_rand_expr() {
+static void gen_rand_expr(int depth) {
+  if(depth >3){
+    gen_num();
+    return;
+  }
   switch (choose(3)) {
     case 0: gen_num();break;
-    case 1:gen('(');gen_rand_expr();gen(')');break;
-    default:gen_rand_expr(); gen_rand_op();gen_rand_expr();break;
-  
+    case 1:gen('(');gen_rand_expr(depth+1);gen(')');break;
+    default:
+      gen_rand_expr(depth+1);
+      char *now_p = p;
+      gen_rand_op();
+      char op = *(now_p+1);
+      char *start_num = p;
+      gen_rand_expr(depth+1);
+      if(op == '/'&&strcmp(start_num,"0")==0){
+        p=start_num;
+        *p = '\0';
+        int rigth_num =rand()%99 + 1;
+        char num_str[10];
+        sprintf(num_str,"%d",rigth_num);
+        gen_str(num_str);
+      }
+      break;
+     
   }
 }
 
@@ -81,16 +97,8 @@ int main(int argc, char *argv[]) {
   }
   int i;
   for (i = 0; i < loop; i ++) {
-    int skip = 0;
     reset_buffer();
-    gen_rand_expr();
-    for(int i=0; i<chuling;i++){
-      if(buf[i]=='/'&&buf[i+1]=='0'){
-        printf("除0操作去除\n");
-        skip =1;
-      }
-    }
-    if(skip) break;
+    gen_rand_expr(0);
     sprintf(code_buf, code_format, buf);
 
     FILE *fp = fopen("/tmp/.code.c", "w");
