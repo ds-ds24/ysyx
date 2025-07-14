@@ -129,6 +129,7 @@ static bool make_token(char *e) {
             tokens[nr_token].str[1]='\0';
             nr_token++;
             break;
+          case TK_RE:
           case TK_NUM:
           case TK_XNUM:
             tokens[nr_token].type=rules[i].token_type;
