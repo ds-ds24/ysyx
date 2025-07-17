@@ -70,9 +70,21 @@ static int cmd_si(char *args) {
 }
 
 static int cmd_w(char *args){
-  WP* wp = add_wp(  args);
-  printf("Hardware watchpoint %d: %s)\n",wp->NO,wp->expr_str);
-  return 0;
+  if(!args){
+    printf("Usage: w EXPR\n");
+     return 0;
+  }
+  bool success;
+  word_t us = expr(args,&success);
+  if(success){
+    WP* wp = add_wp(  args);
+    printf("Hardware watchpoint %d: %s. value :%d)\n",wp->NO,wp->expr_str,us);
+    return 0;
+  }
+  else {
+    printf("表达式错误\n");
+    return 0;
+  }
 }
 
 static int cmd_info(char *args) {
