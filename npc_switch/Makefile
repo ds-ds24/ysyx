@@ -1,7 +1,3 @@
-# all:
-# 	verilator --cc -trace --exe --build -j 0 -Wall csrc/main.cpp vsrc/top.v
-# 	./obj_dir/Vtop
-# 	gtkwave wave.vcd
 
 sim:
 	$(call git_commit, "sim RTL") # DO NOT REMOVE THIS LINE!!!
@@ -61,5 +57,5 @@ run: $(BIN)
 
 clean:
 	rm -rf $(BUILD_DIR)
-
+	rm -rf obj_dir
 .PHONY: default all clean run
