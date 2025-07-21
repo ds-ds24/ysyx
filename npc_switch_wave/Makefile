@@ -58,4 +58,5 @@ run: $(BIN)
 clean:
 	rm -rf $(BUILD_DIR)
 	rm -rf obj_dir
+	rm wave.vcd
 .PHONY: default all clean run
