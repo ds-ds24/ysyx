@@ -58,7 +58,8 @@ static int cmd_c(char *args) {
 
 
 static int cmd_q(char *args) {
-	exit(0);
+	//exit(0);
+  return -1;
 }
 
 
