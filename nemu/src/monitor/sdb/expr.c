@@ -128,7 +128,7 @@ static bool make_token(char *e) {
             tokens[nr_token].str[0]=rules[i].token_type;
             tokens[nr_token].str[1]='\0';
             nr_token++;
-            if(nr_token>3){
+            if(nr_token>31){
               printf("Warning: Tokens' length is too long\n");
               assert(0);
             }
@@ -140,7 +140,7 @@ static bool make_token(char *e) {
             strncpy(tokens[nr_token].str, substr_start,substr_len);
             tokens[nr_token].str[substr_len]='\0';
             nr_token++;
-            if(nr_token>3){
+            if(nr_token>31){
               printf("Warning: Tokens' length is too long\n");
               assert(0);
             }
