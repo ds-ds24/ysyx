@@ -284,7 +284,7 @@ word_t eval(int p,int q) {
           case TK_F:
             if(op+1>q) return 0;
             printf("%d",val2*(-1));
-            return val2*(-1);
+            return (word_t) (0-val2);
         }
       }
       int val1=eval(p,op-1);
