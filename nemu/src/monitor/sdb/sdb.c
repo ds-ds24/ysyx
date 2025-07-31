@@ -121,10 +121,10 @@ static int cmd_x(char *args){
   int len=0;
   paddr_t addr = 0;
   sscanf(args,"%d %x",&len,&addr);
-  printf("以%x为起始地址打印%d内存数据\n",addr,len);
+  printf("以%x为起始地址打印%d内存数据:\n",addr,len);
   int i=0;
   for(i=0;i<len;i++){
-    printf("%x: %x\n",addr,paddr_read(addr,4));
+    printf("%08x: %08x\n",addr,paddr_read(addr,4));
     addr += 4;
   }
   return 0;
