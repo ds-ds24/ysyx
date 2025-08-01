@@ -135,8 +135,9 @@ static int cmd_fp(char *args){
   //bool success;
   char buf[100];
   while (fgets(buf,sizeof(buf),fp) != NULL){
-    printf("%s",buf);
+    printf("%s\n",buf);
   }
+  printf("%c",buf[0]);
   //expr(fp, &success);
   return 0;
 }
