@@ -208,6 +208,7 @@ word_t eval(int p,int q) {
         bool success;
         word_t isa_num=0;
         if(strcmp(tokens[p].str,"$pc")==0){
+          printf("0");
           isa_num = cpu.pc;
         }
         else {
