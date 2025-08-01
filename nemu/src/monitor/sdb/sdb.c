@@ -147,7 +147,7 @@ static int cmd_fp(char *args){
     char *token = strtok(read[i]," ");
     strcpy(read1[i],token);
     char *expr_str = strtok(NULL,"\0");
-    printf("%s",expr_str);
+    printf("%s\n",expr_str);
     //strcpy(read2[i],token);
     //word_t endnum =expr(expr_str,&success);
     //printf("%s,%u\n",read1[i],endnum);
