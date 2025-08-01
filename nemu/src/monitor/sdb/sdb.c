@@ -138,7 +138,7 @@ static int cmd_fp(char *args){
   //char read2[1000][50];
   bool success;
   int i=0;    
-  while (fgets(buf,sizeof(buf),fp) != NULL && i<1){
+  while (fgets(buf,sizeof(buf),fp) != NULL && i<10){
     strcpy(read[i],buf);
     size_t len = strlen(read[i]);
     if(len > 0 && read[i][len-1]=='\n'){
@@ -148,7 +148,7 @@ static int cmd_fp(char *args){
     strcpy(read1[i],token);
     char *expr_str = strtok(NULL,"\0");
     word_t endnum = expr(expr_str,&success);
-    if(atoi(read1[i]) != endnum){
+    if(atoi(read1[i]) == endnum){
       printf("%s,%u",read1[i],endnum);
     }
     i++;
