@@ -181,7 +181,7 @@ static bool check_parentheses(int p,int q){
     return false;
   }
   int balance = 0;
-  for(int i=p;i<=q;i++){
+  for(int i=p+1;i<q;i++){
     if(tokens[i].type =='(') balance++;
     else if(tokens[i].type == ')') balance--;
     if(balance<0) return false;
