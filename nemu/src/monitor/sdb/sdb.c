@@ -130,6 +130,17 @@ static int cmd_x(char *args){
   return 0;
 }
 
+static int cmd_fp(char *args){
+  FILE *fp=fopen("/home/ds24/ysyx-workbench/nemu/tools/gen-expr/input","r");
+  //bool success;
+  char buf[100];
+  while (fgets(buf,sizeof(buf),fp) != NULL){
+    printf("%s",buf);
+  }
+  //expr(fp, &success);
+  return 0;
+}
+
 static int cmd_help(char *args);
 
 
@@ -148,7 +159,8 @@ static struct {
   {"x","Scan memory",cmd_x},
   {"p","Expression evaluation",cmd_p},
   {"w","Add watchpoints",cmd_w},
-  {"d","Delete watchpoints",cmd_d}
+  {"d","Delete watchpoints",cmd_d},
+  {"fp","Read input.text",cmd_fp}
 
 };
 
