@@ -141,9 +141,9 @@ static int cmd_fp(char *args){
   char read1[1000][50];
   //char read2[1000][50];
   bool success;
-  int i=0;    
+  int i=0;
   while (fgets(buf,sizeof(buf),fp) != NULL && i<10){
-    strcpy(read[i],buf);
+    strncpy(read[i],buf,sizeof(read[i])-1);
     size_t len = strlen(read[i]);
     if(len > 0 && read[i][len-1]=='\n'){
       read[i][len-1] = '\0';
