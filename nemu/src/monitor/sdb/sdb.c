@@ -132,11 +132,11 @@ static int cmd_x(char *args){
 
 static int cmd_fp(char *args){
   FILE *fp=fopen("/home/ds24/ysyx-workbench/nemu/tools/gen-expr/input","r");
-  //bool success;
   char buf[100];
   char read[1000][100];
   char read1[1000][50];
-  char read2[1000][50];
+  //char read2[1000][50];
+  bool success;
   int i=0;
   while (fgets(buf,sizeof(buf),fp) != NULL){
     strcpy(read[i],buf);
@@ -147,15 +147,22 @@ static int cmd_fp(char *args){
     char *token = strtok(read[i]," ");
     strcpy(read1[i],token);
     token = strtok(NULL,"\0");
-    strcpy(read2[i],token);
+    //strcpy(read2[i],token);
+    word_t endnum =expr(token,&success);
+    printf("%s,%d\n",read1[i],endnum);
     i++;
   }
   
   //q
   // printf("%s\n",read[0]);
-  printf("%s\n%s",read1[0],read2[0]);
+  // printf("%s\n%s",read1[0],read2[0]);
   //expr(fp, &success);
   fclose(fp);
+  // bool success;
+  // while(read2[i] != "\0"){
+  //   word_t endnum = expr(read2,&success);
+  //   printf("%s,%d",read1[i],endnum);
+  // }
 
   return 0;
 }
