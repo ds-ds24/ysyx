@@ -135,8 +135,8 @@ static int cmd_fp(char *args){
   //bool success;
   char buf[100];
   char read[1000][100];
-  //char read1[1000][50];
-  //char read2[1000][50];
+  char read1[1000][50];
+  char read2[1000][50];
   int i=0;
   while (fgets(buf,sizeof(buf),fp) != NULL){
     strcpy(read[i],buf);
@@ -144,9 +144,15 @@ static int cmd_fp(char *args){
     if(len > 0 && read[i][len-1]=='\n'){
       read[i][len-1] = '\0';
     }
+    char *token = strtok(read[i]," ");
+    strtok(read1[i],token);
+    token = strtok(NULL,"\0");
+    strtok(read2[i],token);
     i++;
   }
+  
   printf("%s\n",read[0]);
+  printf("%s\n%s",read1[0],read2[0]);
   //expr(fp, &success);
   fclose(fp);
 
