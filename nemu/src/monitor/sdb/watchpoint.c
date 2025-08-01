@@ -94,8 +94,14 @@ void info_watchpoint(){
   }
   else{
     while(wp != NULL){
-      printf("监视点%d %s的值:0x%08x\n",wp->NO,wp->expr_str,wp->value);
-      wp = wp->next;
+      if(strcmp(wp->expr_str,"$pc")==0){
+        printf("监视点%d %s的:0x%08x\n",wp->NO,wp->expr_str,nemu_state.halt_pc);
+        wp = wp->next;
+      }
+      else{
+        printf("监视点%d %s的值:0x%08x\n",wp->NO,wp->expr_str,wp->value);
+        wp = wp->next;
+      }
     }
   }
 }
