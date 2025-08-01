@@ -101,6 +101,7 @@ void info_watchpoint(){
         printf("监视点%d %s未变化:%d",wp->NO,wp->expr_str,wp->value);
         return ;
       }
+      wp = wp->next;
     }
   }
 }
