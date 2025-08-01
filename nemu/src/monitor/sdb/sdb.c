@@ -142,7 +142,7 @@ static int cmd_fp(char *args){
   //char read2[1000][50];
   bool success;
   int i=0;
-  while (fgets(buf,sizeof(buf),fp) != NULL && i<10){
+  while (fgets(buf,sizeof(buf),fp) != NULL && i<100){
     strncpy(read[i],buf,sizeof(read[i])-1);
     size_t len = strlen(read[i]);
     if(len > 0 && read[i][len-1]=='\n'){
@@ -158,7 +158,7 @@ static int cmd_fp(char *args){
       i++;
       continue;
     }
-    if(atoi(read1[i]) == endnum){
+    if(atoi(read1[i]) != endnum){
       printf("%s,%u\n",read1[i],endnum);
     }
     i++;
