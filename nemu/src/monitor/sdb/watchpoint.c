@@ -85,7 +85,7 @@ bool check_wp(){
     }
     curr = curr->next;
   }
-  return false;;
+  return false;
 }
 void info_watchpoint(){
   WP* wp = head;
