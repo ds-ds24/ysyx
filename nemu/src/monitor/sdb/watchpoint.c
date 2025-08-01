@@ -90,19 +90,15 @@ bool check_wp(){
 void info_watchpoint(){
   WP* wp = head;
   if(head == NULL){
-    printf("NO watchpoints.");
+    printf("NO watchpoints.\n");
   }
   else{
-    while(wp->next == NULL){
-      if(check_wp()){
-        check_wp();
-      }
-      else{
-        printf("监视点%d %s未变化:%d",wp->NO,wp->expr_str,wp->value);
-        return ;
-      }
-      wp = wp->next;
+    while(wp->next != NULL){
+      printf("监视点%d %s的值:%d\n",wp->NO,wp->expr_str,wp->value);
+      return ;
     }
+    wp = wp->next;
+    
   }
 }
 
