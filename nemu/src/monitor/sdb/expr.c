@@ -17,6 +17,7 @@
 #include "debug.h"
 #include "macro.h"
 #include "memory/paddr.h"
+#include "utils.h"
 #include <isa.h>
 
 /* We use the POSIX regex functions to process regular expressions.
@@ -205,8 +206,14 @@ word_t eval(int p,int q) {
       else if(tokens[p].type==TK_NUM) return strtol(tokens[p].str,&next_op,10);
       else if(tokens[p].type==TK_RE) {
         bool success;
-        word_t isa_num = isa_reg_str2val(tokens[p].str,&success);
-        if(!success){
+        word_t isa_num=0;
+        if(strcmp(tokens[p].str,"$pc")==0){
+          isa_num = nemu_state.halt_pc;
+        }
+        else {
+          isa_num = isa_reg_str2val(tokens[p].str,&success);
+        }
+          if(!success){
           return 0;
         }
         return isa_num;
