@@ -17,6 +17,7 @@
 #include "isa.h"
 #include "sdb.h"
 #include "utils.h"
+//#include <ios>
 #include <stdbool.h>
 
 #define NR_WP 32
@@ -27,7 +28,7 @@
   word_t value;
   char *expr_str;
 
-} WP; */ 
+} WP; */
 
 static WP wp_pool[NR_WP] = {};
 static WP *head = NULL, *free_ = NULL;
@@ -42,13 +43,41 @@ void init_wp_pool() {
   head = NULL;
   free_ = wp_pool;
 }
+word_t right;
+bool has_cond=false;
+char *var;
+bool str_condition(const char *str_expr){
+  char *var;//y
+  char *eq_pos = strstr(str_expr, "==");
+  if (eq_pos) {
+    has_cond = true;
+    int var_len = eq_pos - str_expr;
+    var = malloc(var_len + 1);
+    strncpy(var, str_expr, var_len);
+    (var)[var_len] = '\0';
+    bool success;
+    right = expr(eq_pos + 2, &success);
+    return success;
+  } else {
+    has_cond = false;
+    var = strdup(str_expr);
+    right = 0;
+    return true;
+  }
+}
+
 
 /* TODO: Implement the functionality of watchpoint */
 WP* add_wp(const char* str){
   if(free_ == NULL) assert(0); 
   WP* wp = free_;
   free_ = free_->next;
-  wp->expr_str = strdup(str);
+  if(has_cond){
+    wp->expr_str = strdup(var);
+  }
+  else{
+    wp->expr_str = strdup(str);
+  }
   bool success;
   wp->value = expr(wp->expr_str,&success);
   wp->next = head;
@@ -78,11 +107,19 @@ bool check_wp(){
   while(curr != NULL){
     bool success;
     word_t new_value = expr(curr->expr_str,&success);
-    if(new_value != curr->value){
-      printf("监视点%d %s变化:从0x%08x变为0x%08x\n",curr->NO,curr->expr_str,curr->value,new_value);
-      curr->value = new_value;
-      nemu_state.state = NEMU_STOP;
-      return true;
+    if (has_cond) {
+      if (right == new_value) {
+        printf("监视点%d %s触发:0x%08x\n", curr->NO, curr->expr_str,new_value);
+        nemu_state.state = NEMU_STOP;
+      }
+    }
+    else{
+      if(new_value != curr->value){
+        printf("监视点%d %s变化:从0x%08x变为0x%08x\n",curr->NO,curr->expr_str,curr->value,new_value);
+        curr->value = new_value;
+        nemu_state.state = NEMU_STOP;
+      }
+        return true;
     }
     curr = curr->next;
   }

@@ -78,6 +78,7 @@ static int cmd_w(char *args){
      return 0;
   }
   bool success;
+  str_condition(args);
   word_t us = expr(args,&success);
   if(success){
     WP* wp = add_wp(  args);
