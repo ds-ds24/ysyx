@@ -110,6 +110,7 @@ bool check_wp(){
     if (has_cond) {
       if (right == new_value) {
         printf("监视点%d %s触发:0x%08x\n", curr->NO, curr->expr_str,new_value);
+        has_cond = false;
         nemu_state.state = NEMU_STOP;
       }
     }
