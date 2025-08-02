@@ -47,7 +47,9 @@ void init_wp_pool() {
   free_ = wp_pool;
 }
 
+
 WP *add_wp_condition(const char *str_expr){
+  if(free_ == NULL) assert(0); 
   WP *wp = free_;
   free_ = free_->next;
   char *eq_pos = strstr(str_expr, "==");
@@ -58,15 +60,14 @@ WP *add_wp_condition(const char *str_expr){
     strncpy(var, str_expr, var_len);
     (var)[var_len] = '\0';
     wp->expr_str = strdup(var);
+    free(var);
+
     bool success;
     word_t right = expr(eq_pos + 2, &success);
-    if(!success){
-      free(var);
-      printf("表达式错\n");
-      return false;
-    }
     wp->right_value = right;
     wp->has_condition = true;
+    wp->next = head;
+    head = wp;
     return wp;
   } else {
     wp->has_condition = false;
@@ -118,6 +119,7 @@ bool def_wp(int no){
 }
 bool check_wp(){
   WP* curr = head;
+  bool FT = false;
   while(curr != NULL){
     bool success;
     word_t new_value = expr(curr->expr_str,&success);
@@ -125,6 +127,7 @@ bool check_wp(){
       if (curr->right_value == new_value) {
         printf("监视点%d %s触发:0x%08x\n", curr->NO, curr->expr_str,new_value);
         nemu_state.state = NEMU_STOP;
+        FT = true;
       }
     }
     else{
@@ -132,12 +135,12 @@ bool check_wp(){
         printf("监视点%d %s变化:从0x%08x变为0x%08x\n",curr->NO,curr->expr_str,curr->value,new_value);
         curr->value = new_value;
         nemu_state.state = NEMU_STOP;
+        FT = true;
       }
-        return true;
     }
     curr = curr->next;
   }
-  return false;
+  return FT;
 }
 void info_watchpoint(){
   WP* wp = head;
