@@ -77,7 +77,7 @@ static int cmd_w(char *args) {
     printf("Usage: w EXPR\n");
     return 0;
   }
-  WP* wp = add_wp(args);
+  WP* wp = add_wp_condition(args);
   if (!wp) {
     printf("添加监视点失败\n");
     return 0;

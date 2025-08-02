@@ -47,8 +47,9 @@ void init_wp_pool() {
   free_ = wp_pool;
 }
 
-bool str_condition(const char *str_expr){
-  WP *wp=NULL;
+WP *add_wp_condition(const char *str_expr){
+  WP *wp = free_;
+  free_ = free_->next;
   char *eq_pos = strstr(str_expr, "==");
   if (eq_pos) {
     int var_len = eq_pos - str_expr;
@@ -66,32 +67,37 @@ bool str_condition(const char *str_expr){
     }
     wp->right_value = right;
     wp->has_condition = true;
-    return success;
+    return wp;
   } else {
     wp->has_condition = false;
     wp->expr_str = strdup(str_expr);
-    return wp->expr_str != NULL;
+    wp->right_value = 0;
+    bool success;
+    wp->value = expr(wp->expr_str,&success);
+    wp->next = head;
+    head = wp;
+    return wp;
   }
 }
 
 
 /* TODO: Implement the functionality of watchpoint */
-WP* add_wp(const char* str){
-  if(free_ == NULL) assert(0); 
-  WP* wp = free_;
-  free_ = free_->next;
-  if (!str_condition(str)) {
-    wp->next = free_;
-    free_ = wp;
-    return NULL;
-  }
+// WP* add_wp(const char* str){
+//   if(free_ == NULL) assert(0); 
+//   WP* wp = free_;
+//   free_ = free_->next;
+//   if (!str_condition(str)) {
+//     wp->next = free_;
+//     free_ = wp;
+//     return NULL;
+//   }
 
-  bool success;
-  wp->value = expr(wp->expr_str,&success);
-  wp->next = head;
-  head = wp;
-  return wp;
-}
+//   bool success;
+//   wp->value = expr(wp->expr_str,&success);
+//   wp->next = head;
+//   head = wp;
+//   return wp;
+// }
 bool def_wp(int no){
   WP* prev = NULL;
   WP* curr = head;

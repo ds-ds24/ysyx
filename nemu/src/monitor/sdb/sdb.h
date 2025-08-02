@@ -20,7 +20,6 @@
 #include <stdbool.h>
 
 word_t expr(char *e, bool *success);
-bool str_condition(const char *str_expr);
 
 typedef struct watchpoint {
   int NO;
@@ -32,7 +31,7 @@ typedef struct watchpoint {
 } WP;
 
 
-WP* add_wp(const char* str);
+WP* add_wp_condition(const char* str);
 bool def_wp(int no);
 bool check_wp();
 void info_watchpoint();
