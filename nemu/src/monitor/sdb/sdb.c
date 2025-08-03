@@ -18,6 +18,15 @@
 #include <readline/readline.h>
 #include <readline/history.h>
 #include "sdb.h"
+#include "common.h"
+#include "utils.h"
+#include <stdbool.h>
+#include <stdlib.h>
+#include <string.h>
+#include <stdio.h>
+#include <memory/paddr.h>
+#include <threads.h>
+#include <uchar.h>
 
 static int is_batch_mode = false;
 
@@ -49,10 +58,126 @@ static int cmd_c(char *args) {
 
 
 static int cmd_q(char *args) {
+  nemu_state.state=NEMU_QUIT;
   return -1;
 }
 
+
+static int cmd_si(char *args) {
+	int n = (args != NULL) ? atoi(args) : 1;
+	cpu_exec(n);
+	printf("Step execute N=%d\n",n);
+	return 0;
+}
+
+static int cmd_w(char *args) {
+  if (!args) {
+    printf("Usage: w EXPR\n");
+    return 0;
+  }
+  WP* wp = add_wp_condition(args);
+  if (!wp) {
+    printf("添加监视点失败\n");
+    return 0;
+  }
+  if (wp->has_condition) {
+    if(check_wp()){
+      printf("Hardware watchpoint %d: %s == 0x%08x\n",wp->NO, wp->expr_str, wp->right_value);
+    }
+  } 
+  else {
+    if (strcmp(wp->expr_str, "$pc") == 0) {
+      printf("Hardware watchpoint %d: %s: 0x%08x\n",
+             wp->NO, wp->expr_str,cpu.pc);
+    } else {
+      printf("Hardware watchpoint %d: %s: 0x%08x\n",
+             wp->NO, wp->expr_str,wp->value);
+    }
+  }
+
+  return 0;
+}
+
+static int cmd_info(char *args) {
+	if(strcmp(args,"r")==0){
+    printf("$pc      0x%016x\t%u\n",cpu.pc,cpu.pc);
+		isa_reg_display();
+	}
+  if(strcmp(args,"w")==0){
+    info_watchpoint();
+  }
+	return 0;
+}
+static int cmd_d(char *args){
+  int no = atoi(args);
+  def_wp(no);
+  return 0;
+}
+static int cmd_p(char *args){
+  init_regex();
+  bool success;
+  word_t endnum = expr(args,&success);
+  if(success){
+    printf("0x%08x\n",endnum);
+  }
+  if(!success){
+    printf("括号不匹配");
+  }
+  return 0;
+}
+
+static int cmd_x(char *args){
+  int len=0;
+  paddr_t addr = 0;
+  sscanf(args,"%d %x",&len,&addr);
+  printf("以%x为起始地址打印%d内存数据:\n",addr,len);
+  int i=0;
+  for(i=0;i<len;i++){
+    printf("%08x: %08x\n",addr,paddr_read(addr,4));
+    addr += 4;
+  }
+  return 0;
+}
+
+static int cmd_fp(char *args){
+  FILE *fp=fopen("/home/ds24/ysyx-workbench/nemu/tools/gen-expr/input","r");
+  if(fp == NULL){
+    printf("无法打开文件\n");
+    return 0;
+  }
+  char buf[100];
+  char read[1000][100];
+  char read1[1000][50];
+  //char read2[1000][50];
+  bool success;
+  int i=0;
+  while (fgets(buf,sizeof(buf),fp) != NULL && i<100){
+    strncpy(read[i],buf,sizeof(read[i])-1);
+    size_t len = strlen(read[i]);
+    if(len > 0 && read[i][len-1]=='\n'){
+      read[i][len-1] = '\0';
+    }
+    char *token = strtok(read[i]," ");
+    strcpy(read1[i],token);
+    char *expr_str = strtok(NULL,"\0");
+    success = false;
+    word_t endnum = expr(expr_str,&success);
+    if(!success){
+      printf("第%d解析错误: %s\n",i+1,expr_str);
+      i++;
+      continue;
+    }
+    if(atoi(read1[i]) != endnum){
+      printf("%s,%u\n",read1[i],endnum);
+    }
+    i++;
+  }
+  fclose(fp);
+  return 0;
+}
+
 static int cmd_help(char *args);
+
 
 static struct {
   const char *name;
@@ -64,6 +189,13 @@ static struct {
   { "q", "Exit NEMU", cmd_q },
 
   /* TODO: Add more commands */
+  {"si","Let the program excute N instuctions in a single step and the suspend execution",cmd_si},
+	{"info","Print registers",cmd_info},
+  {"x","Scan memory",cmd_x},
+  {"p","Expression evaluation",cmd_p},
+  {"w","Add watchpoints",cmd_w},
+  {"d","Delete watchpoints",cmd_d},
+  {"fp","Read input.text",cmd_fp}
 
 };
 
