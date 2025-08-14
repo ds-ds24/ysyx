@@ -63,13 +63,13 @@ LINKAGE   = $(OBJS)  # library archives are added by LIB_TEMPLATE below
 ## 3. General Compilation Flags
 
 ### (Cross) compilers, e.g., mips-linux-gnu-g++
-AS        = $(CROSS_COMPILE)gcc
-CC        = $(CROSS_COMPILE)gcc
+AS        = $(CROSS_COMPILE)gcc		#### Assembly file
+CC        = $(CROSS_COMPILE)gcc		#### C language
 CXX       = $(CROSS_COMPILE)g++
-LD        = $(CROSS_COMPILE)ld
-AR        = $(CROSS_COMPILE)ar
+LD        = $(CROSS_COMPILE)ld		#### .o  library files
+AR        = $(CROSS_COMPILE)ar		#### .a
 OBJDUMP   = $(CROSS_COMPILE)objdump
-OBJCOPY   = $(CROSS_COMPILE)objcopy
+OBJCOPY   = $(CROSS_COMPILE)objcopy		#### format
 READELF   = $(CROSS_COMPILE)readelf
 
 ### Compilation flags
