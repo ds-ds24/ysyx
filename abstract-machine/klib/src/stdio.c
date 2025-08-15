@@ -30,7 +30,7 @@ int sprintf(char *out, const char *fmt, ...) {
       switch(fmt[i]){
         case's':{
           char *str=va_arg(args,char*);
-          for(int j=0;str[i]!='\0';j++){
+          for(int j=0;str[j]!='\0';j++){
             *p++=str[j];
             count++;
           }
