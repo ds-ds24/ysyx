@@ -11,7 +11,7 @@ int printf(const char *fmt, ...) {
   panic("Not implemented");
 }
 
-int vsprintf(char *out, const char *fmt, va_list ap) {
+int vsprintf(char *out, const char *fmt, va_list ap) j
   panic("Not implemented");
 }
 

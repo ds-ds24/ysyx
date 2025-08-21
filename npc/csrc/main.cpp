@@ -1,28 +1,29 @@
-#include <stdio.h>
-#include "Vexample.h"
-#include "verilated.h"
-#include "verilated_vcd_c.h"
-#define MAX_SIM_TIME 20
-vluint64_t sim_time = 0;
+#include <nvboard.h>
+#include <Vtop.h>
 
-int main(int argc,char** argv){
-	Vexample *top =new Vexample;
-	Verilated::traceEverOn(true);
-	VerilatedVcdC *m_trace = new VerilatedVcdC;
-	top->trace(m_trace,10);
-	m_trace->open("wavefrom.vcd");
-	while(sim_time < MAX_SIM_TIME) {
-		top->clk ^= 1;
-		top->a = sim_time / 3;
-		top->b = sim_time / 2;
-		top->eval();
-		m_trace->dump(sim_time);
-		sim_time++;
-	}
+static TOP_NAME dut;
 
-	m_trace->close();
-	delete top;
+void nvboard_bind_all_pins(TOP_NAME* top);
 
-	return 0;
+static void single_cycle() {
+  dut.clk = 0; dut.eval();
+  dut.clk = 1; dut.eval();
 }
 
+//  static void reset(int n) {
+//    dut.rst = 1;
+//    while (n -- > 0) single_cycle();
+//    dut.rst = 0;
+//  }
+
+int main() {
+  nvboard_bind_all_pins(&dut);
+  nvboard_init();
+
+  //reset(10);
+
+  while(1) {
+    nvboard_update();
+    single_cycle();
+  }
+}
