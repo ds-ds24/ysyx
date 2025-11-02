@@ -3,7 +3,7 @@
 	url = git@github.com:NJU-ProjectN/am-kernels.git
 [submodule "fceux-am"]
 	path = fceux-am
-	url = git@github.com:NJU-ProjectN/fceux-am.git
+	url = git@github.com:ds-ds24/fceux-am.git
 [submodule "nvboard"]
 	path = nvboard
 	url = git@github.com:ds-ds24/nvboard.git
