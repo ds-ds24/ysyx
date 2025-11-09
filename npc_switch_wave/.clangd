@@ -1,0 +1,9 @@
+CompileFlags:
+  Add:
+    - -I/home/ds24/ysyx-workbench/npc_switch/obj_dir/
+    - -I/usr/local/share/verilator/include/
+    - -I/home/ds24/ysyx-workbench/nemu/tools/capstone/repa/include
+    - -I/home/ds24/ysyx-workbench/nvboard/include/
+    - -I/usr/local/share/verilator/include/verilated_vcd_c.h
+    - -I/home/ds24/ysyx-workbench/nvboard/include/nvboard.h
+    - -I/home/ds24/ysyx-workbench/nvboard/include/pins.h
